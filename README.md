@@ -9,6 +9,7 @@
 Якщо ви ніколи не клонували репозиторій ,то вам потрібно встановити git.
 
 https://git-scm.com/download/win - скачуємо git
+
 https://www.youtube.com/watch?v=qt-QDN3MyeM - відео про його встановлення
 
 Клонування реаозиторію :
