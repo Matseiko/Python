@@ -6,6 +6,20 @@
 
 Для того щоб розгорнути проект перш за все потрібно інсталювати Python 3.8 версії за допомогою pyenv і встановити інтегроване середовище розробки для цієї мови програмування (наприклад Pycharm) 
 
+Pyenv можна встановити за допомогою програми PowerShell.
+В ній ми прописуємо наступні команди:
+
+pip install pyenv-win --target %USERPROFILE%\.pyenv
+[System.Environment]::SetEnvironmentVariable('PYENV',$env:USERPROFILE + "\.pyenv\pyenv-win\","User")
+[System.Environment]::SetEnvironmentVariable('path', $HOME + "\.pyenv\pyenv-win\bin;" + $HOME + "\.pyenv\pyenv-win\shims;" + $env:Path,"User")
+
+Інформація про це взята з цього сайту : https://pypi.org/project/pyenv-win/
+
+Тепер встановлюємо необхіднк версію Python:
+pyenv install 3.8.0
+
+pip install virtualenv - ця команда інсталює virtualenv
+
 Якщо ви ніколи не клонували репозиторій ,то вам потрібно встановити git.
 
 https://git-scm.com/download/win - скачуємо git
