@@ -1,749 +1,608 @@
 openapi: 3.0.1
 info:
-  title: Swagger Сar_rental
-  description: 'This is a sample server Сar_rental server.  You can find out more about     Swagger
-    at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).      For
-    this sample, you can use the api key `special-key` to test the authorization     filters.'
-  termsOfService: http://swagger.io/terms/
+  title: Car rental
+  description: Car rental service REST API
   contact:
-    email: apiteam@swagger.io
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+        name:  Ira
+        email: iryna.matseiko.knm.2019@lpnu.ua
   version: 1.0.0
-externalDocs:
-  description: Find out more about Swagger
-  url: http://swagger.io
 servers:
-- url: https://сar_rental.swagger.io/v2
-- url: http://сar_rental.swagger.io/v2
+  - url: 'https://сar_rental.swagger.io/api/v2'
+  - url: 'http://сar_rental.swagger.io/api/v2'
 
 tags:
 - name: auth
   description: API authorization
-- name: pet
-  description: Everything about your Pets
-  externalDocs:
-    description: Find out more
-    url: http://swagger.io
-- name: store
-  description: Access to Сar_rental orders
 - name: user
-  description: Operations about user
-  externalDocs:
-    description: Find out more about our store
-    url: http://swagger.io
+  description: Operations with users
+- name: car
+  description: Operations with car
+- name: booking
+  description: Car booking
+
 paths:
   /auth:
     post:
       tags:
-      - auth
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
+        - auth
+      summary: 'Authenticates a user, returns the user level'
+      operationId: getUserLevel
       requestBody:
-        description: Created user object
+        description: Personal information
         content:
-          '*/*':
+          application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/personal_information'
         required: true
       responses:
+        '200':
+          description: User level
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user_level'
         default:
-          description: successful operation
-          content: {}
-      x-codegen-request-body-name: body     
-  /pet:
-    put:
-      tags:
-      - pet
-      summary: Update an existing pet
-      operationId: updatePet
-      requestBody:
-        description: Pet object that needs to be added to the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-        405:
-          description: Validation exception
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-      x-codegen-request-body-name: body
-    post:
-      tags:
-      - pet
-      summary: Add a new pet to the store
-      operationId: addPet
-      requestBody:
-        description: Pet object that needs to be added to the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        405:
-          description: Invalid input
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-      x-codegen-request-body-name: body
-  /pet/findByStatus:
-    get:
-      tags:
-      - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-      - name: status
-        in: query
-        description: Status values that need to be considered for filter
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-            default: available
-            enum:
-            - available
-            - pending
-            - sold
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        400:
-          description: Invalid status value
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-  /pet/findByTags:
-    get:
-      tags:
-      - pet
-      summary: Finds Pets by tags
-      description: Muliple tags can be provided with comma separated strings. Use         tag1,
-        tag2, tag3 for testing.
-      operationId: findPetsByTags
-      parameters:
-      - name: tags
-        in: query
-        description: Tags to filter by
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: array
-          items:
-            type: string
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        400:
-          description: Invalid tag value
-          content: {}
-      deprecated: true
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-  /pet/{petId}:
-    get:
-      tags:
-      - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-      - name: petId
-        in: path
-        description: ID of pet to return
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-      security:
-      - api_key: []
-    post:
-      tags:
-      - pet
-      summary: Updates a pet in the store with form data
-      operationId: updatePetWithForm
-      parameters:
-      - name: petId
-        in: path
-        description: ID of pet that needs to be updated
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              properties:
-                name:
-                  type: string
-                  description: Updated name of the pet
-                status:
-                  type: string
-                  description: Updated status of the pet
-      responses:
-        405:
-          description: Invalid input
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-    delete:
-      tags:
-      - pet
-      summary: Deletes a pet
-      operationId: deletePet
-      parameters:
-      - name: api_key
-        in: header
-        schema:
-          type: string
-      - name: petId
-        in: path
-        description: Pet id to delete
-        required: true
-        schema:
-          type: integer
-          format: int64
-      responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Pet not found
-          content: {}
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-  /pet/{petId}/uploadImage:
-    post:
-      tags:
-      - pet
-      summary: uploads an image
-      operationId: uploadFile
-      parameters:
-      - name: petId
-        in: path
-        description: ID of pet to update
-        required: true
-        schema:
-          type: integer
-          format: int64
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              properties:
-                additionalMetadata:
-                  type: string
-                  description: Additional data to pass to server
-                file:
-                  type: string
-                  description: file to upload
-                  format: binary
-      responses:
-        200:
-          description: successful operation
+          description: Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-      - petstore_auth:
-        - write:pets
-        - read:pets
-  /store/inventory:
-    get:
-      tags:
-      - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-      - api_key: []
-  /store/order:
-    post:
-      tags:
-      - store
-      summary: Place an order for a pet
-      operationId: placeOrder
-      requestBody:
-        description: order placed for purchasing the pet
-        content:
-          '*/*':
-            schema:
-              $ref: '#/components/schemas/Order'
-        required: true
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        400:
-          description: Invalid Order
-          content: {}
-      x-codegen-request-body-name: body
-  /store/order/{orderId}:
-    get:
-      tags:
-      - store
-      summary: Find purchase order by ID
-      description: For valid response try integer IDs with value >= 1 and <= 10.         Other
-        values will generated exceptions
-      operationId: getOrderById
-      parameters:
-      - name: orderId
-        in: path
-        description: ID of pet that needs to be fetched
-        required: true
-        schema:
-          maximum: 10.0
-          minimum: 1.0
-          type: integer
-          format: int64
-      responses:
-        200:
-          description: successful operation
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Order not found
-          content: {}
-    delete:
-      tags:
-      - store
-      summary: Delete purchase order by ID
-      description: For valid response try integer IDs with positive integer value.         Negative
-        or non-integer values will generate API errors
-      operationId: deleteOrder
-      parameters:
-      - name: orderId
-        in: path
-        description: ID of the order that needs to be deleted
-        required: true
-        schema:
-          minimum: 1.0
-          type: integer
-          format: int64
-      responses:
-        400:
-          description: Invalid ID supplied
-          content: {}
-        404:
-          description: Order not found
-          content: {}
+                $ref: '#/components/schemas/error'
+
   /user:
     post:
       tags:
-      - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUserr
+        - user 
+      description: Operations with users
+      summary: Operations with users
+      operationId: createuser
       requestBody:
-        description: Created user object
         content:
-          '*/*':
+          application/json:
             schema:
-              $ref: '#/components/schemas/User'
-        required: true
+              $ref: '#/components/schemas/create_user'
       responses:
-        default:
-          description: successful operation
-          content: {}
-      x-codegen-request-body-name: body
-  /user/createWithArray:
-    post:
-      tags:
-      - user
-      summary: Creates list of users with given input array
-      operationId: createUsersWithArrayInput
-      requestBody:
-        description: List of user object
-        content:
-          '*/*':
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-        required: true
-      responses:
-        default:
-          description: successful operation
-          content: {}
-      x-codegen-request-body-name: body
-  /user/createWithList:
-    post:
-      tags:
-      - user
-      summary: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      requestBody:
-        description: List of user object
-        content:
-          '*/*':
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-        required: true
-      responses:
-        default:
-          description: successful operation
-          content: {}
-      x-codegen-request-body-name: body
-  /user/login:
-    get:
-      tags:
-      - user
-      summary: Logs user into the system
-      operationId: loginUser
-      parameters:
-      - name: username
-        in: query
-        description: The user name for login
-        required: true
-        schema:
-          type: string
-      - name: password
-        in: query
-        description: The password for login in clear text
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
+        '300':
+          description: User
           content:
-            application/xml:
-              schema:
-                type: string
             application/json:
               schema:
-                type: string
-        400:
-          description: Invalid username/password supplied
-          content: {}
-  /user/logout:
-    get:
-      tags:
-      - user
-      summary: Logs out current logged in user session
-      operationId: logoutUser
-      responses:
+                $ref: '#/components/schemas/user'
         default:
-          description: successful operation
-          content: {}
-  /user/{username}:
-    get:
-      tags:
-      - user
-      summary: Get user by user name
-      operationId: getUserByName
-      parameters:
-      - name: username
-        in: path
-        description: 'The name that needs to be fetched. Use user1 for testing. '
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          description: successful operation
+          description: Error
           content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        400:
-          description: Invalid username supplied
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:passenger
+        - read:passenger
+      - api_key: [ ]
+  /user/administrator:
+    post:
+      tags:
+        - user
+      summary: Admin
+      operationId: createadmin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_user'
+      responses:
+        '300':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:passenger
+        - read:passenger
+        - write:administrator
+        - read:administrator
+      - api_key: [ ]
+  '/user/{id_user}':
+    get:
+      tags:
+        - user
+      summary: Get user data
+      operationId: getdata
+      parameters:
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '301':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: User is not authorized
           content: {}
-        404:
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
           description: User not found
           content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - read:passenger
+      - api_key: [ ]
     put:
       tags:
-      - user
-      summary: Updated user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
+        - user
+      summary: Update user data
+      operationId: Updatedata 
       parameters:
-      - name: username
-        in: path
-        description: name that need to be updated
-        required: true
-        schema:
-          type: string
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
-        description: Updated user object
         content:
-          '*/*':
+          application/json:
             schema:
-              $ref: '#/components/schemas/User'
-        required: true
+              $ref: '#/components/schemas/create_user'
       responses:
-        400:
-          description: Invalid user supplied
+        '301':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+        '400':
+          description: User is not authorized
           content: {}
-        404:
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
           description: User not found
           content: {}
-      x-codegen-request-body-name: body
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:passenger
+        - read:passenger
+      - api_key: [ ]
     delete:
       tags:
-      - user
+        - user
       summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
+      operationId: deleteuser 
       parameters:
-      - name: username
-        in: path
-        description: The name that needs to be deleted
-        required: true
-        schema:
-          type: string
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
-        400:
-          description: Invalid username supplied
+        '400':
+          description: User is not authorized
           content: {}
-        404:
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
           description: User not found
           content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+        - car_auth:
+          - write:administrator
+          - read:administrator
+        - api_key: [ ]
+  /car:
+    post:
+      tags:
+        - car
+      summary: Add a new car
+      operationId: addcar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_car'
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/car'
+        '400':
+          description: User is not authorized
+          content: {}
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
+          description: User not found
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:administrator
+        - read:administrator
+      - api_key: [ ]
+    get:
+      tags:
+        - car
+      summary: Get a car
+      operationId: getcar
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/car'
+                nullable: false
+        '403':
+          description: Car not found
+          content: {}
+        '402':
+          description: User not found
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:administrator
+        - read:administrator
+      - api_key: [ ]
+  '/car/{id_car}':
+    get:
+      tags:
+        - car
+      summary: Get the car with such id
+      operationId: getcarid
+      parameters:
+        - name: id_car
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/car'
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '403':
+          description: Car not found
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:administrator
+        - read:administrator
+      - api_key: [ ]
+    put:
+      tags:
+        - car
+      summary: Update the car with such id
+      operationId: Updatecar
+      parameters:
+        - name: id_car
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_car'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/car'
+        '400':
+          description: User is not authorized
+          content: {}
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
+          description: User not found
+          content: {}
+        '403':
+          description: Car not found
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:administrator
+        - read:administrator
+      - api_key: [ ]
+    delete:
+      tags:
+        - car
+      summary: Delete the car with such id
+      operationId: deletecar 
+      parameters:
+        - name: id_car
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content: {}
+        '400':
+          description: User is not authorized
+          content: {}
+        '401':
+          description: Only administrator can do that
+          content: {}
+        '402':
+          description: User not found
+          content: {}
+        '403':
+          description: Car not found
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+        - car_auth:
+          - write:administrator
+          - read:administrator
+        - api_key: [ ]
+  /booking:
+    post:
+      tags:
+        - booking
+      summary: Create a new booking
+      operationId: creatbooking 
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/create_booking'
+        required: true
+      responses:
+        '201':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/booking'
+        '400':
+          description: User is not authorized
+          content: {}
+        '402':
+          description: User not found
+          content: {}
+        '403':
+          description: Car not found
+          content: {}
+        '404':
+          description: Only passenger can do that
+          content: {}
+        '405':
+          description: The car was booked by another user
+          content: {}
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - read:passenger
+      - api_key: [ ]
+
 components:
   schemas:
-    Order:
+    personal_information:
+      required:
+        - login
+        - password
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        petId:
-          type: integer
-          format: int64
-        quantity:
-          type: integer
-          format: int32
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          enum:
-          - placed
-          - approved
-          - delivered
-        complete:
-          type: boolean
-          default: false
-      xml:
-        name: Order
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Category
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        username:
-          type: string
-        firstName:
-          type: string
-        lastName:
-          type: string
-        email:
+        login:
           type: string
         password:
           type: string
-        phone:
-          type: string
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-      xml:
-        name: User
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: Tag
-    Pet:
+
+    user_level:
       required:
-      - name
-      - photoUrls
+        - user_level
+      type: object
+      properties:
+        user_level:
+          type: string
+    user:
       type: object
       properties:
         id:
+          type: string
+        first name:
+          type: string
+        last name:
+          type: string
+        birthday:
+          type: string
+          format: date
+        email:
+          type: string
+        phone:
           type: integer
-          format: int64
-        category:
-          $ref: '#/components/schemas/Category'
+        role:
+          type: string
+      nullable: false
+    car:
+      type: object
+      properties:
+        id:
+          type: string
         name:
           type: string
-          example: doggie
-        photoUrls:
-          type: array
-          xml:
-            name: photoUrl
-            wrapped: true
-          items:
-            type: string
-        tags:
-          type: array
-          xml:
-            name: tag
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
+        brand:
           type: string
-          description: pet status in the store
-          enum:
-          - available
-          - pending
-          - sold
-      xml:
-        name: Pet
-    ApiResponse:
+        release date:
+          type: integer
+          format: date
+        color:
+          type: string
+        speed:
+          type: integer
+        price:
+          type: number
+          format: float
+      nullable: false
+    booking:
+      type: object
+      properties:
+        user id:
+          type: string
+        car id:
+          type: string
+        booking from:
+          type: integer
+          format: date
+        booking until:
+          type: integer
+          format: date
+        id:
+          type: string
+      nullable: false
+    create_user:
+      type: object
+      properties:
+        first name:
+          type: string
+        last name:
+          type: string
+        birthday:
+          type: string
+          format: date
+        email:
+          type: string
+        phone:
+          type: integer
+        role:
+          type: string
+      nullable: false
+    create_car:
+      type: object
+      properties:
+        name:
+          type: string
+        brand:
+          type: string
+        release date:
+          type: integer
+          format: date
+        color:
+          type: string
+        speed:
+          type: integer
+        price:
+          type: number
+          format: float
+      nullable: false
+    create_booking:
+      type: object
+      properties:
+        user id:
+          type: string
+        car id:
+          type: string
+        booking from:
+          type: integer
+          format: date
+        booking until:
+          type: integer
+          format: date
+      nullable: false
+    error:
+      required:
+        - code
       type: object
       properties:
         code:
           type: integer
-          format: int32
-        type:
-          type: string
         message:
           type: string
+
+            
   securitySchemes:
-    petstore_auth:
+    car_auth:
       type: oauth2
       flows:
         implicit:
-          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          authorizationUrl: http://car.swagger.io/oauth/dialog
           scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
+            write:passenger: modify user in your account
+            read:passenger: read your pets
+            write:administrator: modify user in your account
+            read:administrator: read your pets
     api_key:
       type: apiKey
       name: api_key
