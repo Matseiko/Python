@@ -263,8 +263,8 @@ paths:
     get:
       tags:
         - car
-      summary: Get a car
-      operationId: getcar
+      summary: Get all the cars
+      operationId: getcars
       responses:
         '200':
           description: ''
@@ -289,8 +289,8 @@ paths:
                 $ref: '#/components/schemas/error'
       security:
       - car_auth:
-        - write:administrator
-        - read:administrator
+        - write:passenger
+        - read:passenger
       - api_key: [ ]
   '/car/{id_car}':
     get:
@@ -434,12 +434,6 @@ paths:
         '400':
           description: User is not authorized
           content: {}
-        '402':
-          description: User not found
-          content: {}
-        '403':
-          description: Car not found
-          content: {}
         '404':
           description: Only passenger can do that
           content: {}
@@ -454,6 +448,33 @@ paths:
                 $ref: '#/components/schemas/error'
       security:
       - car_auth:
+        - write:passenger
+        - read:passenger
+      - api_key: [ ]
+    get:
+      tags:
+        - booking
+      summary: Get all the booking
+      operationId: getbookings
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/booking'
+                nullable: false
+        default:
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+      security:
+      - car_auth:
+        - write:passenger
         - read:passenger
       - api_key: [ ]
 
@@ -461,11 +482,11 @@ components:
   schemas:
     personal_information:
       required:
-        - login
+        - email
         - password
       type: object
       properties:
-        login:
+        email:
           type: string
         password:
           type: string
@@ -475,7 +496,7 @@ components:
         - user_level
       type: object
       properties:
-        user_level:
+        user level:
           type: string
     user:
       type: object
@@ -491,8 +512,6 @@ components:
           format: date
         email:
           type: string
-        phone:
-          type: integer
         role:
           type: string
       nullable: false
@@ -503,15 +522,6 @@ components:
           type: string
         name:
           type: string
-        brand:
-          type: string
-        release date:
-          type: integer
-          format: date
-        color:
-          type: string
-        speed:
-          type: integer
         price:
           type: number
           format: float
@@ -544,8 +554,6 @@ components:
           format: date
         email:
           type: string
-        phone:
-          type: integer
         role:
           type: string
       nullable: false
@@ -554,15 +562,6 @@ components:
       properties:
         name:
           type: string
-        brand:
-          type: string
-        release date:
-          type: integer
-          format: date
-        color:
-          type: string
-        speed:
-          type: integer
         price:
           type: number
           format: float
@@ -607,3 +606,4 @@ components:
       type: apiKey
       name: api_key
       in: header
+
