@@ -21,6 +21,7 @@ class BookingController(object):
         car = Cars.query.filter_by(id=car_id).first()
         booking = Bookings(user, car, booking_from_date, booking_until_date)
 
+
         try:
             result = BookingSchema().load(booking_data)
         except ValidationError as err:

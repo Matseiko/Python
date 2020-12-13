@@ -34,7 +34,7 @@ class UserController(object):
         user = Users.query.filter_by(id=user_id).first()
         #car = Cars()
         if user is None:
-            return jsonify(message="The car was not found", status=404)
+            return jsonify(message="The user was not found", status=404)
         else:
             #car.read_from_db(car_id)
             return jsonify({'   first_name': user.first_name, '   last name':  user.last_name, '   birthday': user.birthday,'   role': user.role, '   status': 200})

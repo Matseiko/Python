@@ -1,5 +1,6 @@
 from Database import db
-from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import Schema, fields
+from app import manager
 
 
 class Users(db.Model):
@@ -50,3 +51,6 @@ class UserSchema(Schema):
     role = fields.Str(required=True)
 
 
+@manager.user_loader
+def load_user(user_id):
+    return Users.query.get(user_id)

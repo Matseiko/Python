@@ -11,6 +11,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 from templates import routes
 
+#app.secret_key = 'secret_key'
+
+app.config['SECRET_KEY'] = 'secret_key'
 db.init_app(app)
 manager.init_app(app)
 migrate = Migrate(app, db)

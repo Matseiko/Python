@@ -1,9 +1,32 @@
-from flask import request
+from flask import request, jsonify, make_response
 from app import app
-
+from Models.ModelUsers import Users
 from Controller.UserController import UserController
 from Controller.CarController import CarController
 from Controller.BookingController import BookingController
+from Database import bcrypt
+import jwt
+from datetime import datetime, timedelta
+from functools import wraps
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:
+            return jsonify({'message':  'Token is missing!!'}), 401
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = Users.query.filter_by(id=data['id']).first()
+        except:
+            return jsonify({'message': token + ' Token is invalid!!!'}), 401
+        return f(current_user, *args, **kwargs)
+
+    return decorated
 
 
 @app.route("/start")
@@ -14,6 +37,7 @@ def hello():
 
 
 @app.route('/UserCreate', methods=['GET'])
+
 def hello_user():
     user_data = request.args
     user_controller = UserController()
@@ -26,7 +50,10 @@ def hello_user():
 
 
 @app.route('/CarCreate', methods=['GET'])
-def hello_car():
+@token_required
+def hello_car(current_user):
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Cannot perform that function!'})
     car_data = request.args
     car_controller = CarController()
     if car_controller.create(car_data):
@@ -38,7 +65,10 @@ def hello_car():
 
 
 @app.route('/BookingCreate/<int:user_id>/<int:car_id>', methods=['GET'])
-def hello_booking(user_id, car_id):
+@token_required
+def hello_booking(current_user, user_id, car_id):
+    if current_user.role != 'passenger':
+        return jsonify({'message': 'Cannot perform that function!'})
     booking_data = request.args
     booking_controller = BookingController()
     return booking_controller.create(booking_data, user_id, car_id)
@@ -47,18 +77,21 @@ def hello_booking(user_id, car_id):
 
 
 @app.route('/CarRead', methods=['GET'])
+@token_required
 def read_car():
     car_id = request.args.get('id')
     car_controller = CarController()
     read_car = car_controller.read(car_id)
-    #return "Name : " + str(read_car.name) + "   Price : " + str(read_car.price)
     return car_controller.read(car_id)
 
 # link to try: http://127.0.0.1:5000/UserRead?id=1
 
 
 @app.route('/UserRead', methods=['GET'])
-def read_user():
+@token_required
+def read_user(current_user):
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Cannot perform that function!'})
     user_id = request.args.get('id')
     user_controller = UserController()
     read_user = user_controller.read(user_id)
@@ -68,7 +101,8 @@ def read_user():
 
 
 @app.route('/CarsRead', methods=['GET'])
-def read_cars():
+@token_required
+def read_cars(current_user):
     car_controller = CarController()
     read_cars = car_controller.read_all()
     output = ""
@@ -78,9 +112,10 @@ def read_cars():
 
 # link to try: http://127.0.0.1:5000/NotBookedRead
 
-
+####
 @app.route('/NotBookedRead', methods=['GET'])
-def not_booked_read():
+@token_required
+def not_booked_read(current_user):
     booking_controller = BookingController()
     read_booking = booking_controller.read()
     car_controller = CarController()
@@ -101,7 +136,10 @@ def not_booked_read():
 
 
 @app.route('/CarUpdate', methods=['PUT'])
-def update_car():
+@token_required
+def update_car(current_user):
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Cannot perform that function!'})
     car_id = request.args.get('id')
     car_data = request.args
     car_controller = CarController()
@@ -111,7 +149,10 @@ def update_car():
 
 
 @app.route('/CarDelete', methods=['DELETE'])
-def delete_car():
+@token_required
+def delete_car(current_user):
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Cannot perform that function!'})
     car_id = request.args.get('id')
     user_id = request.args.get('user_id')
     car_controller = CarController()
@@ -122,7 +163,26 @@ def delete_car():
 
 
 @app.route('/UserDelete', methods=['DELETE'])
-def delete_user():
+@token_required
+def delete_user(current_user):
+    if current_user.role != 'admin':
+        return jsonify({'message': 'Cannot perform that function!'})
     user_id = request.args.get('id')
     user_controller = UserController()
     return user_controller.delete(user_id)
+
+
+@app.route('/login')
+def login():
+    auth = request.authorization
+    if not auth or not auth.password or not auth.username:
+        return make_response('Could verify!', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
+    user = Users.query.filter_by(first_name=auth.username).first()
+    if not user:
+        return jsonify({'message': 'No user found!'})
+
+    #if bcrypt.check_password_hash(user.password, auth.password):
+    if auth.password:
+        token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        return jsonify({'token': token.decode('UTF-8')})
+    return make_response('Could verify!', 401, {'WWW-authenticate': 'Basic realm="Login Required'})

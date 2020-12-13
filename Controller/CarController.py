@@ -11,10 +11,6 @@ class CarController(object):
         price = car_data.get('price')
 
         car = Cars(name, price)
-        #user_id = car_data.get('user_id')
-        #user = Users.query.filter_by(id=user_id).first()
-        #if user.role == 'passenger':
-        #    return jsonify(message="You do not have access!", status=403)
 
         try:
             result = CarSchema().load(car_data)
@@ -30,7 +26,6 @@ class CarController(object):
 
     def read(self, car_id=None):
         car = Cars.query.filter_by(id=car_id).first()
-        #car = Cars()
         if car is None:
             return jsonify(message="The car was not found", status=404)
         else:
@@ -60,9 +55,9 @@ class CarController(object):
         car = Cars.query.filter_by(id=car_id).first()
         user = Users.query.filter_by(id=user_id).first()
         if user.role == 'passenger':
-            return jsonify(message="You do not have access!", status=403)
+            return jsonify(message="You do not have access !", status=403)
         if car is None:
-            return jsonify(message="The car was not found", status=404)
+            return jsonify(message="The car was not found !", status=404)
         else:
             car.delete_from_db(car_id)
             return jsonify(message="Car was deleted !", status=200)

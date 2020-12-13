@@ -1,5 +1,5 @@
 from Database import db
-from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import Schema, fields, validate
 
 
 class Cars(db.Model):

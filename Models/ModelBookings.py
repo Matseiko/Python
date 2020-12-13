@@ -1,5 +1,5 @@
 from Database import db
-from marshmallow import Schema, fields, validate, ValidationError
+from marshmallow import Schema, fields
 
 class Bookings(db.Model):
 
@@ -28,8 +28,6 @@ class Bookings(db.Model):
 
 
 class BookingSchema(Schema):
-    #user_id = fields.Str(required=True)
-    #car_id = fields.Str(required=True)
     booking_from = fields.Str(required=True)
     booking_until = fields.Str(required=True)
 
