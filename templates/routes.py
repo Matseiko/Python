@@ -17,34 +17,30 @@ def token_required(f):
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
         if not token:
-            return jsonify({'message':  'Token is missing!!'}), 401
-
+            return jsonify({'message':  'Token is missing !'}), 401
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = Users.query.filter_by(id=data['id']).first()
         except:
-            return jsonify({'message': token + ' Token is invalid!!!'}), 401
+            return jsonify({'message': token + ' Token is invalid !'}), 401
         return f(current_user, *args, **kwargs)
-
     return decorated
 
 
 @app.route("/start")
 def hello():
-    return "Hello world !"
+    return jsonify(message="Hello world !", status=200)
+
 
 # link to try: http://127.0.0.1:5000/UserCreate?email=vika@gmail.com&password=11111&first_name=Vika&last_name=Oh&birthday=2002-07-08&role=admin
 
 
 @app.route('/UserCreate', methods=['GET'])
-
 def hello_user():
     user_data = request.args
     user_controller = UserController()
-    if user_controller.create(user_data):
-        return "Success!"
-    else:
-        return "Create failed!"
+    return user_controller.create(user_data)
+
 
 # link to try: http://127.0.0.1:5000/CarCreate?name=BMW&price=100
 
@@ -77,7 +73,6 @@ def hello_booking(current_user, user_id, car_id):
 
 
 @app.route('/CarRead', methods=['GET'])
-@token_required
 def read_car():
     car_id = request.args.get('id')
     car_controller = CarController()
@@ -101,21 +96,19 @@ def read_user(current_user):
 
 
 @app.route('/CarsRead', methods=['GET'])
-@token_required
-def read_cars(current_user):
+def read_cars():
     car_controller = CarController()
     read_cars = car_controller.read_all()
     output = ""
     for i in range(len(read_cars)):
         output += "Name : " + str(read_cars[i].name) + "   Price : " + str(read_cars[i].price) + "\n"
-    return output
+    return jsonify(message=output, status=200)
 
 # link to try: http://127.0.0.1:5000/NotBookedRead
 
-####
+
 @app.route('/NotBookedRead', methods=['GET'])
-@token_required
-def not_booked_read(current_user):
+def not_booked_read():
     booking_controller = BookingController()
     read_booking = booking_controller.read()
     car_controller = CarController()
@@ -172,17 +165,19 @@ def delete_user(current_user):
     return user_controller.delete(user_id)
 
 
+# link to try: http://127.0.0.1:5000/login
 @app.route('/login')
 def login():
     auth = request.authorization
-    if not auth or not auth.password or not auth.username:
-        return make_response('Could verify!', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
     user = Users.query.filter_by(first_name=auth.username).first()
     if not user:
         return jsonify({'message': 'No user found!'})
-
-    #if bcrypt.check_password_hash(user.password, auth.password):
     if auth.password:
-        token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        #token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'])
+        token = jwt.encode({'id': user.id}, app.config['SECRET_KEY'])
         return jsonify({'token': token.decode('UTF-8')})
-    return make_response('Could verify!', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
+    return make_response('Could verify !', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
+
+
+
+

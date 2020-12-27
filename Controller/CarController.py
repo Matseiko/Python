@@ -40,8 +40,6 @@ class CarController(object):
         car = Cars.query.filter_by(id=car_id).first()
         user_id = car_data.get('user_id')
         user = Users.query.filter_by(id=user_id).first()
-        if user.role == 'passenger':
-            return jsonify(message="You do not have access!", status=403)
 
         if new_price:
             car.price = new_price

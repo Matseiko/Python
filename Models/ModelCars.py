@@ -20,17 +20,6 @@ class Cars(db.Model):
         db.session.add(data)
         db.session.commit()
 
-    def read_from_db(self, car_id):
-        read_car = Cars.query.filter_by(id=car_id).first()
-        self.name = read_car.name
-        self.price = read_car.price
-
-    def read_from_db_all(self, car_id):
-        read_cars = Cars.query.filter_by().all()
-        self.id =read_cars.id
-        self.name = read_cars.name
-        self.price = read_cars.price
-
     def update_db(self, car_id):
         update_car = Cars.query.filter_by(id=car_id).first()
         self.price = update_car.new_price
