@@ -169,15 +169,13 @@ def delete_user(current_user):
 @app.route('/login')
 def login():
     auth = request.authorization
-    user = Users.query.filter_by(first_name=auth.username).first()
+    user = Users.query.filter_by(first_name=auth['username']).first()
     if not user:
         return jsonify({'message': 'No user found!'})
     if auth.password:
-        #token = jwt.encode({'id': user.id, 'exp': datetime.utcnow() + timedelta(minutes=30)}, app.config['SECRET_KEY'])
         token = jwt.encode({'id': user.id}, app.config['SECRET_KEY'])
         return jsonify({'token': token.decode('UTF-8')})
     return make_response('Could verify !', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
-
 
 
 
