@@ -2,27 +2,39 @@ from flask import url_for
 from flask import request, jsonify, make_response
 
 import base64
-from app import app_test
+from app import app_test, app_log
 import pytest
-
-from templates.routes import token_required
-
-'''
-@pytest.fixture(scope='function')
-def testapp(app):
-    testapp = app_test(app)
-
-    with testapp.app.test_request_context():
-        access_token = token_required(identity=Users.query.filter_by(email='victor@gmail.com').first(), expires_delta=False, fresh=True)
-    testapp.authorization = ('Bearer', access_token)
-
-    return testapp
+import jwt
+from Models.ModelUsers import Users
+from datetime import datetime, timedelta
+from templates.routes import token_user
 
 
-def test_read_user(function):
-    rv = function.get("/UserRead?id=6")
-    assert rv.status_code == 200
-'''
+@pytest.fixture()
+def admin():
+    app = app_log()
+    app.app_context().push()
+    app.testing = True
+    client = app.test_client()
+    global token
+    user_id = Users.query.filter_by(first_name="Victor").first().id
+    token = jwt.encode({'id': user_id}, app.config['SECRET_KEY'])
+    yield client
+    app.testing = False
+
+
+@pytest.fixture()
+def passenger():
+    app = app_log()
+    app.app_context().push()
+    app.testing = True
+    client = app.test_client()
+    global token
+    user_id = Users.query.filter_by(first_name="Vova").first().id
+    token = jwt.encode({'id': user_id}, app.config['SECRET_KEY'])
+    yield client
+    app.testing = False
+
 
 def test_hello():
     rv = app_test.get("/start")
@@ -52,15 +64,12 @@ def test_login_3():
     }
 
 
-'''
-
 def test_hello_user_1():
     rv = app_test.get("/UserCreate?email=l000@gmail.com&password=34567&first_name=Lo0&last_name=Lop0&birthday=2001-07-05&role=admin")
     assert rv.get_json() == {
         'message': "The user is created !",
         'status': 200
     }
-'''
 
 
 def test_hello_user_2():
@@ -76,6 +85,64 @@ def test_hello_user_3():
     assert rv.get_json() == {
         'message': "Missing values !",
         'status': 404
+    }
+
+
+def test_read_user_1(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/UserRead?id=8", headers=headers)
+    assert rv.status_code == 200
+
+
+def test_read_user_2(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/UserRead?id=100", headers=headers)
+    assert rv.get_json() == {
+        'message': "The user was not found !",
+        'status': 404
+    }
+
+
+def test_delete_user_1(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.delete("/UserDelete?id=100", headers=headers)
+    assert rv.get_json() == {
+        'message': "The user was not found !",
+        'status': 404
+    }
+
+
+def test_delete_user_2(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.delete("/UserDelete?id=19", headers=headers)
+    assert rv.get_json() == {
+        'message': "User was deleted !",
+        'status': 200
+    }
+
+
+def test_hello_car_1(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/CarCreate?name=&price=100", headers=headers)
+    assert rv.get_json() == {
+        'message': "Missing values !",
+        'status': 404
+    }
+
+
+def test_hello_car_2(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/CarCreate?name=Irr&price=100", headers=headers)
+    assert rv.get_json() == {
+        'message': "The car is created !",
+        'status': 200
+    }
+
+
+def test_hello_car_1_token():
+    rv = app_test.get("/CarCreate?name=BMW&price=100")
+    assert rv.get_json() == {
+        'message': "Token is missing !"
     }
 
 
@@ -97,12 +164,63 @@ def test_read_cars():
     assert rv.status_code == 200
 
 
+def test_update_car_1(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.put("/CarUpdate?id=2&user_id=8&new_price=", headers=headers)
+    assert rv.get_json() == {
+        'message': "Missing values !",
+        'status': 404
+    }
+
+
+def test_update_car_2(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.put("/CarUpdate?id=2&user_id=8&new_price=123", headers=headers)
+    assert rv.get_json() == {
+        'message': "Car was updated !",
+        'status': 200
+    }
+
+
+def test_delete_car_1(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.delete("/CarDelete?id=1000", headers=headers)
+    assert rv.get_json() == {
+        'message': "The car was not found !",
+        'status': 404
+    }
+
+
+def test_delete_car_2(admin):
+    headers = {'x-access-token': token}
+    rv = app_test.delete("/CarDelete?id=17", headers=headers)
+    assert rv.get_json() == {
+        'message': "Car was deleted !",
+        'status': 200
+    }
+
+
+def test_hello_booking_1(passenger):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/BookingCreate/15/7?booking_from=&booking_until=2020-12-05", headers=headers)
+    assert rv.get_json() == {
+        'message': "ERROR",
+        'status': 400
+    }
+
+
+def test_hello_booking_2(passenger):
+    headers = {'x-access-token': token}
+    rv = app_test.get("/BookingCreate/15/9?booking_from=2020-12-03&booking_until=2020-12-05", headers=headers)
+    assert rv.get_json() == {
+        'message': "The booking is created !",
+        'status': 200
+    }
+
+
 def test_not_booked_read():
     rv = app_test.get("/NotBookedRead")
     assert rv.status_code == 200
-
-
-
 
 
 # coverage run --omit 'venv/*' -m pytest -q test_flask.py
