@@ -22,6 +22,19 @@ migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
 
+def app_log():
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'secret_key'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db.init_app(app)
+    migrate = Migrate(app, db)
+
+    manager = Manager(app)
+    manager.add_command('db', MigrateCommand)
+    return app
+
 app_test = app.test_client()
 
 if __name__ == '__main__':

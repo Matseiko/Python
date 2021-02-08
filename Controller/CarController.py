@@ -49,11 +49,8 @@ class CarController(object):
         else:
             return jsonify(message="Missing values !", status=404)
 
-    def delete(self, car_id=None, user_id=None):
+    def delete(self, car_id=None):
         car = Cars.query.filter_by(id=car_id).first()
-        user = Users.query.filter_by(id=user_id).first()
-        if user.role == 'passenger':
-            return jsonify(message="You do not have access !", status=403)
         if car is None:
             return jsonify(message="The car was not found !", status=404)
         else:

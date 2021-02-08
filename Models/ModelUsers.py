@@ -29,12 +29,6 @@ class Users(db.Model):
         data = Users(self.email, self.password, self.first_name,
                      self.last_name, self.birthday, self.role)
 
-    def read_from_db(self, user_id):
-        read_user = Users.query.filter_by(id=user_id).first()
-        self.first_name = read_user.first_name
-        self.last_name = read_user.last_name
-        self.birthday = read_user.birthday
-        self.role = read_user.role
 
     def delete_from_db(self, user_id):
         delete_user = Users.query.filter_by(id=user_id).first()

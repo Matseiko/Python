@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 
-def token_required(f):
+def token_user(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
@@ -46,22 +46,20 @@ def hello_user():
 
 
 @app.route('/CarCreate', methods=['GET'])
-@token_required
+@token_user
 def hello_car(current_user):
     if current_user.role != 'admin':
         return jsonify({'message': 'Cannot perform that function!'})
     car_data = request.args
     car_controller = CarController()
-    if car_controller.create(car_data):
-        return "Success!"
-    else:
-        return "Create failed!"
+    return car_controller.create(car_data)
+
 
 # link to try: http://127.0.0.1:5000/BookingCreate/11/6?booking_from=2020-12-03&booking_until=2020-12-05
 
 
 @app.route('/BookingCreate/<int:user_id>/<int:car_id>', methods=['GET'])
-@token_required
+@token_user
 def hello_booking(current_user, user_id, car_id):
     if current_user.role != 'passenger':
         return jsonify({'message': 'Cannot perform that function!'})
@@ -83,7 +81,7 @@ def read_car():
 
 
 @app.route('/UserRead', methods=['GET'])
-@token_required
+@token_user
 def read_user(current_user):
     if current_user.role != 'admin':
         return jsonify({'message': 'Cannot perform that function!'})
@@ -129,7 +127,7 @@ def not_booked_read():
 
 
 @app.route('/CarUpdate', methods=['PUT'])
-@token_required
+@token_user
 def update_car(current_user):
     if current_user.role != 'admin':
         return jsonify({'message': 'Cannot perform that function!'})
@@ -138,25 +136,24 @@ def update_car(current_user):
     car_controller = CarController()
     return car_controller.update_car(car_id, car_data)
 
-# link to try: http://127.0.0.1:5000/CarDelete?id=1&user_id=10&user_id=10
+# link to try: http://127.0.0.1:5000/CarDelete?id=1
 
 
 @app.route('/CarDelete', methods=['DELETE'])
-@token_required
+@token_user
 def delete_car(current_user):
     if current_user.role != 'admin':
         return jsonify({'message': 'Cannot perform that function!'})
     car_id = request.args.get('id')
-    user_id = request.args.get('user_id')
     car_controller = CarController()
-    return car_controller.delete(car_id, user_id)
+    return car_controller.delete(car_id)
 
 
 # link to try: http://127.0.0.1:5000/UserDelete?id=1
 
 
 @app.route('/UserDelete', methods=['DELETE'])
-@token_required
+@token_user
 def delete_user(current_user):
     if current_user.role != 'admin':
         return jsonify({'message': 'Cannot perform that function!'})
@@ -176,6 +173,7 @@ def login():
         token = jwt.encode({'id': user.id}, app.config['SECRET_KEY'])
         return jsonify({'token': token.decode('UTF-8')})
     return make_response('Could verify !', 401, {'WWW-authenticate': 'Basic realm="Login Required'})
+
 
 
 

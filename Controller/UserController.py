@@ -34,7 +34,7 @@ class UserController(object):
         user = Users.query.filter_by(id=user_id).first()
         #car = Cars()
         if user is None:
-            return jsonify(message="The user was not found", status=404)
+            return jsonify(message="The user was not found !", status=404)
         else:
             #car.read_from_db(car_id)
             return jsonify({'   first_name': user.first_name, '   last name':  user.last_name, '   birthday': user.birthday,'   role': user.role, '   status': 200})
@@ -42,7 +42,7 @@ class UserController(object):
     def delete(self, user_id=None):
         user = Users.query.filter_by(id=user_id).first()
         if user is None:
-            return jsonify(message="The user was not found", status=404)
+            return jsonify(message="The user was not found !", status=404)
         else:
             user.delete_from_db(user_id)
             return jsonify(message="User was deleted !", status=200)

@@ -26,12 +26,12 @@ class BookingController(object):
             result = BookingSchema().load(booking_data)
         except ValidationError as err:
             return jsonify(message="ERROR", status=400)
-            #return err.messages
 
         if user and car and booking_from and booking_until:
             db.session.add(car)
             db.session.commit()
             return jsonify(message="The booking is created !", status=200)
+
 
     def read(self, booking_id=None):
         return Bookings.query.filter_by().all()
